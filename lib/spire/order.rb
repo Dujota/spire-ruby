@@ -64,7 +64,7 @@ module Spire
       # @return [Spire::Order]
 
       def search(query)
-        client.find_many(Spire::Order, '/sales/orders', {q: query})
+        client.find_many(Spire::Order, '/sales/orders/', {q: query})
       end
 
       # Create a new item and save it on Spire.
