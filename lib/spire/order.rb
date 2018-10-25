@@ -57,6 +57,25 @@ module Spire
         client.find('/sales/orders', id, params)
       end
 
+      # Search for order by query. This will even return inactive orders!
+      #
+      # @raise [Spire::Error] if the order could not be found.
+      #
+      # @return [Spire::Order]
+
+      def search(query)
+        client.find_many(Spire::Order, '/sales/orders', {q: query})
+      end
+
+      # Create a new item and save it on Spire.
+      #
+      # @param [Hash] options
+      # @option options [Hash] :customer the spire customer who will be associated with the order
+      # @option options [Hash] :address this is the billing address for the customer
+      # @option options [Hash] :shippingAddress this is the shipping address that the order will be sent to (defaults to the billing address if none provided)
+      # @option options [Array] :items this is an array of hashes that will accept an inventory item that will have a hash
+
+
     end
   end
 
