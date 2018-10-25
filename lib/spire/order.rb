@@ -45,6 +45,19 @@ module Spire
       created: 'created',
       modified: 'modified'
     }
+
+    class << self
+       # Find a specific order by its id.
+      #
+      # @raise [Spire::Error] if the order could not be found.
+      #
+      # @return [Spire::Order]
+
+      def find(id, params = {})
+        client.find('/sales/orders', id, params)
+      end
+
+    end
   end
 
 end
