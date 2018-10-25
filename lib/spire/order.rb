@@ -11,6 +11,40 @@ module Spire
       ]
 
     validates_acceptance_of :id, :customer, :address, :shipping_address, :items
+
+    ACTIVE = 0
+    ON_HOLD = 1
+    INACTIVE = 2
+
+    SYMBOL_TO_STRING = {
+      id: 'id',
+      order_no: 'orderNo',
+      customer: 'customer',
+      status: 'status',
+      type: 'type',
+      hold: 'hold',
+      order_date: 'orderDate',
+      address: 'address',
+      shipping_address: 'shippingAddress',
+      customer_po: 'shippingPO',
+      fob: 'fob',
+      terms_code: "termsCode",
+      terms_text: 'termsText',
+      freight: 'freight',
+      taxes: 'taxes',
+      subtotal: 'subtotal',
+      subtotal_ordered: 'subtotalOrdered',
+      discount: 'discount',
+      total_discount: 'totalDiscount',
+      total: 'total',
+      total_ordered: 'totalOrdered',
+      gross_profit: 'grossProfit',
+      items: 'items',
+      created_by: 'createdBy',
+      modified_by: 'modifiedBy',
+      created: 'created',
+      modified: 'modified'
+    }
   end
 
 end
