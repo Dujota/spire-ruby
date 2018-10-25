@@ -73,7 +73,12 @@ module Spire
       # @option options [Hash] :customer the spire customer who will be associated with the order
       # @option options [Hash] :address this is the billing address for the customer
       # @option options [Hash] :shippingAddress this is the shipping address that the order will be sent to (defaults to the billing address if none provided)
-      # @option options [Array] :items this is an array of hashes that will accept an inventory item that will have a hash
+      # @option options [Array] :items this is an array of hashes that will accept an inventory item that will have a hash example input from the web client: items: [ { "inventory": {"id": 123} } ]
+      # this array can also accept a desctiption and comment object that will create a comment on the order itself ex: items: [{"description":"MAKE COMMENT THRU API","comment":"MAKE COMMENT THRU API"}]
+
+      # @raise [Spire::Error] if the order could not be created.
+      #
+      # @return [Spire::Order]
 
 
     end
