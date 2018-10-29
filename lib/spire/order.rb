@@ -5,7 +5,7 @@ module Spire
       :order_date, :address, :shipping_address, :customer_po, :fob, :terms_code,
       :terms_text, :freight, :taxes, :subtotal, :subtotal_ordered, :discount,
       :total_discount, :total, :total_ordered, :gross_profit, :items, :created_by,
-      :modified_by, :created, :modified,
+      :modified_by, :created, :modified, :background_color,
       readonly: [
         :created_by, :modified_by, :created, :modified,
       ]
@@ -43,7 +43,8 @@ module Spire
       created_by: 'createdBy',
       modified_by: 'modifiedBy',
       created: 'created',
-      modified: 'modified'
+      modified: 'modified',
+      background_color: 'backgroundColor'
     }
 
     class << self
@@ -72,13 +73,62 @@ module Spire
       # @param [Hash] options
       # @option options [Hash] :customer the spire customer who will be associated with the order
       # @option options [Hash] :address this is the billing address for the customer
-      # @option options [Hash] :shippingAddress this is the shipping address that the order will be sent to (defaults to the billing address if none provided)
+      # @option options [Hash] :shipping_address this is the shipping address that the order will be sent to (defaults to the billing address if none provided)
       # @option options [Array] :items this is an array of hashes that will accept an inventory item that will have a hash example input from the web client: items: [ { "inventory": {"id": 123} } ]
       # this array can also accept a desctiption and comment object that will create a comment on the order itself ex: items: [{"description":"MAKE COMMENT THRU API","comment":"MAKE COMMENT THRU API"}]
 
       # @raise [Spire::Error] if the order could not be created.
       #
       # @return [Spire::Order]
+
+      def create(options)
+        client.create(
+          :order,
+          'customer' => options[:customer],
+          'address' => options[:address],
+          'shippingAddress' => options[:shipping_address],
+          'items' => options[:items],
+        )
+      end
+
+      # Update the fields of an order.
+      #
+      # Supply a hash of string keyed data retrieved from the Spire API representing an order.
+      #
+      # Note that this this method does not save anything new to the Spire API,
+      # it just assigns the input attributes to your local object. If you use
+      # this method to assign attributes, call `save` or `update!` afterwards if
+      # you want to persist your changes to Spire.
+      #
+
+      def update_fields(fields)
+        # instead of going through each attribute on self, iterate through each item in field and update from there
+        self.attributes.each do |k, v|
+          attributes[k.to_sym] = fields[SYMBOL_TO_STRING[k.to_sym]] || fields[k.to_sym] || attributes[k.to_sym]
+        end
+
+        attributes[:id] = fields[SYMBOL_TO_STRING[:id]] || attributes[:id]
+        self
+      end
+
+      # Saves a record.
+      #
+      # @raise [Spire::Error] if the order could not be saved
+      #
+      # @return [String] The JSON representation of the saved order returned by
+      #     the Spire API.
+
+      def save
+        # If we have an id, just update our fields
+        return update! if id
+
+        options = {
+          orderNo: order_no,
+          customer: customer,
+          orderDate: order_date,
+          address: address
+        }
+      end
 
 
     end
