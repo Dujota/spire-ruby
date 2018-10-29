@@ -90,8 +90,9 @@ module Spire
           'items' => options[:items],
         )
       end
+    end
 
-      # Update the fields of an order.
+    # Update the fields of an order.
       #
       # Supply a hash of string keyed data retrieved from the Spire API representing an order.
       #
@@ -123,15 +124,38 @@ module Spire
         return update! if id
 
         options = {
-          orderNo: order_no,
-          customer: customer,
-          orderDate: order_date,
-          address: address
+          customer: customer || {},
+          address: address || {},
+          shippingAddress: shippingAddress || {},
+          items: items || {},
+          backgroundColor: background_color || 16777215
         }
+
+        from_response client.post("/sales/orders/", options)
+      end
+
+      # Update an existing record.
+      #
+      # Warning: this updates all fields using values already in memory. If
+      # an external resource has updated these fields, you should refresh wuth update fields mehtod!
+      # this object before making your changes, and before updating the record.
+      #
+      # @raise [Spire::Error] if the order could not be updated.
+      #
+      # @return [String] The JSON representation of the updated order returned by
+      # the Spire API.
+
+      def update!
+        @previously_changed = changes
+        # extract only new values to build payload
+        payload = Hash[changes.map { |key, values| [SYMBOL_TO_STRING[key.to_sym].to_sym, values[1]] }]
+        @changed_attributes.clear
+
+        client.put("/sales/orders/#{id}", payload)
       end
 
 
-    end
-  end
 
+
+  end
 end
