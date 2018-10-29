@@ -93,69 +93,98 @@ module Spire
     end
 
     # Update the fields of an order.
-      #
-      # Supply a hash of string keyed data retrieved from the Spire API representing an order.
-      #
-      # Note that this this method does not save anything new to the Spire API,
-      # it just assigns the input attributes to your local object. If you use
-      # this method to assign attributes, call `save` or `update!` afterwards if
-      # you want to persist your changes to Spire.
-      #
+    #
+    # Supply a hash of string keyed data retrieved from the Spire API representing an order.
+    #
+    # Note that this this method does not save anything new to the Spire API,
+    # it just assigns the input attributes to your local object. If you use
+    # this method to assign attributes, call `save` or `update!` afterwards if
+    # you want to persist your changes to Spire.
+    #
 
-      def update_fields(fields)
-        # instead of going through each attribute on self, iterate through each item in field and update from there
-        self.attributes.each do |k, v|
-          attributes[k.to_sym] = fields[SYMBOL_TO_STRING[k.to_sym]] || fields[k.to_sym] || attributes[k.to_sym]
-        end
-
-        attributes[:id] = fields[SYMBOL_TO_STRING[:id]] || attributes[:id]
-        self
+    def update_fields(fields)
+      # instead of going through each attribute on self, iterate through each item in field and update from there
+      self.attributes.each do |k, v|
+        attributes[k.to_sym] = fields[SYMBOL_TO_STRING[k.to_sym]] || fields[k.to_sym] || attributes[k.to_sym]
       end
 
-      # Saves a record.
-      #
-      # @raise [Spire::Error] if the order could not be saved
-      #
-      # @return [String] The JSON representation of the saved order returned by
-      #     the Spire API.
+      attributes[:id] = fields[SYMBOL_TO_STRING[:id]] || attributes[:id]
+      self
+    end
 
-      def save
-        # If we have an id, just update our fields
-        return update! if id
+    # Saves a record.
+    #
+    # @raise [Spire::Error] if the order could not be saved
+    #
+    # @return [String] The JSON representation of the saved order returned by
+    #     the Spire API.
 
-        options = {
-          customer: customer || {},
-          address: address || {},
-          shippingAddress: shippingAddress || {},
-          items: items || {},
-          backgroundColor: background_color || 16777215
-        }
+    def save
+      # If we have an id, just update our fields
+      return update! if id
 
-        from_response client.post("/sales/orders/", options)
-      end
+      options = {
+        customer: customer || {},
+        address: address || {},
+        shippingAddress: shippingAddress || {},
+        items: items || {},
+        backgroundColor: background_color || 16777215
+      }
 
-      # Update an existing record.
-      #
-      # Warning: this updates all fields using values already in memory. If
-      # an external resource has updated these fields, you should refresh wuth update fields mehtod!
-      # this object before making your changes, and before updating the record.
-      #
-      # @raise [Spire::Error] if the order could not be updated.
-      #
-      # @return [String] The JSON representation of the updated order returned by
-      # the Spire API.
+      from_response client.post("/sales/orders/", options)
+    end
 
-      def update!
-        @previously_changed = changes
-        # extract only new values to build payload
-        payload = Hash[changes.map { |key, values| [SYMBOL_TO_STRING[key.to_sym].to_sym, values[1]] }]
-        @changed_attributes.clear
+    # Update an existing record.
+    #
+    # Warning: this updates all fields using values already in memory. If
+    # an external resource has updated these fields, you should refresh wuth update fields mehtod!
+    # this object before making your changes, and before updating the record.
+    #
+    # @raise [Spire::Error] if the order could not be updated.
+    #
+    # @return [String] The JSON representation of the updated order returned by
+    # the Spire API.
 
-        client.put("/sales/orders/#{id}", payload)
-      end
+    def update!
+      @previously_changed = changes
+      # extract only new values to build payload
+      payload = Hash[changes.map { |key, values| [SYMBOL_TO_STRING[key.to_sym].to_sym, values[1]] }]
+      @changed_attributes.clear
 
+      client.put("/sales/orders/#{id}", payload)
+    end
 
+    # Delete this order
+    #
+    # @return [String] the JSON response from the Spire API
+    def delete
+      client.delete("/sales/orders/#{id}")
+    end
 
+    # Sets status to inactive.
+    # This will not make any changes on Spire.
+    # If you want to save changes to Spire call .save or .update!
+    def make_inactive
+      self.status = INACTIVE
+    end
 
+    # Sets status to on hold.
+    # This will not make any changes on Spire.
+    # If you want to save changes to Spire call .save or .update!
+    def put_on_hold
+      self.status = ON_HOLD
+    end
+
+    # Sets status to active.
+    # This will not make any changes on Spire.
+    # If you want to save changes to Spire call .save or .update!
+    def make_active
+      self.status = ACTIVE
+    end
+
+    # Is the record valid?
+    def valid?
+      !order_no.nil? && !items.nil? && !customer.nil?
+    end
   end
 end
